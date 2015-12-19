@@ -1,0 +1,31 @@
+{
+  "name": "sigh-bify",
+  "version": "0.0.1",
+  "description": "sigh-plugin for browserify.",
+  "scripts": {},
+  "main": "lib",
+  "keywords": [
+    "sigh-plugin"
+  ],
+  "license": "Beerware",
+  "dependencies": {
+    "lodash.get": "^3.7.0",
+    "bluebird": "^2.9.24",
+    "convert-source-map": "^1.1.2",
+    "memory-stream": "0.0.3",
+    "sigh-core": "^0.11.4"
+  },
+  "peerDependencies": {
+    "browserify": "*"
+  },
+  "devDependencies": {
+    "babel": "^5.2.9",
+    "chai": "^2.3.0",
+    "mocha": "^2.2.4",
+    "sigh": "^0.12.7",
+    "sigh-babel": "^0.11.0",
+    "sigh-mocha": "^0.1.0",
+    "source-map": "^0.4.2",
+    "source-map-support": "^0.2.10"
+  }
+}
