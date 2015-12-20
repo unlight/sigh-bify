@@ -6,13 +6,18 @@ import Event from "sigh/lib/Event";
 import Promise from "bluebird";
 import {Bacon} from "sigh-core";
 import {expect} from "chai";
+import Browserify from "browserify";
 import plugin from "../../";
 
 require("source-map-support").install();
 
 describe("sigh-bify", () => {
 	
-	var exampleBrowserify = require("../../example-bundle.js");
+	var createBrowserify = () => {
+		var exampleBrowserifyFile = require.resolve("../../example-bundle2.js");
+		delete require.cache[exampleBrowserifyFile];
+		return require(exampleBrowserifyFile);
+	};
 	var stream = Bacon.constant([]);
 	
 	it("exists", () => {
@@ -30,7 +35,12 @@ describe("sigh-bify", () => {
 	});
 
 	it("should emit something", (done) => {
-		var ps = plugin({stream}, exampleBrowserify);
+		var ps = plugin({stream}, createBrowserify());
+		ps.onEnd(done);
+	});
+
+	it("should watch correct", (done) => {
+		var ps = plugin({stream, watch: true}, createBrowserify());
 		ps.onEnd(done);
 	});
 

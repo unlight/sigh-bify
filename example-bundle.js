@@ -12,7 +12,7 @@ var b = browserify({
 
 var appStream = new MemoryStream();
 appStream.on("finish", function() {
-	b.emit("sigh.data", {
+	b.emit("sigh.event", {
 		path: "app.js",
 		contents: appStream.toString()
 	});
@@ -26,7 +26,7 @@ b.on("bundle", function (bundleStream) {
 	var vendorStream = new MemoryStream();
 	bundleStream.pipe(vendorStream);
 	vendorStream.on("finish", function() {
-		b.emit("sigh.data", {
+		b.emit("sigh.event", {
 			path: "vendors.js",
 			contents: vendorStream.toString()
 		});

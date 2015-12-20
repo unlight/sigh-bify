@@ -12,7 +12,7 @@ export default function(op, b, options = {}) {
 
 	var events = [];
 
-	b.on("sigh.data", e => {
+	var transformEvent = (e) => {
 		var {path, contents} = e;
 		var type = "add";
 		var initPhase = true;
@@ -27,17 +27,33 @@ export default function(op, b, options = {}) {
 			createTime: new Date()
 		});
 		events.push(event);
-	});
+	};
 
-	var onBundleStreamEnd;
-	b.on("bundle", bundleStream => {
-		bundleStream.on("end", () => onBundleStreamEnd(events));
-	});
-	
-	var stream = Bacon.fromCallback(callback => onBundleStreamEnd = callback);
+	b.on("sigh.event", transformEvent);
 
-	// TODO: Handle op.watch
-	b.bundle();
+	if (op.watch) {
+		var watchify = require("watchify");
+		b.plugin(watchify);
+		b.on("reset", () => events = []);
+		b.on("update", () => b.bundle());
+		b.on("log", log);
+		b.on("sigh.event", () => {
+			// TODO: get rid of repeated.
+			b.emit("sigh.events", events);
+		});
+	}
 
-	return stream.take(1);
+	var stream = Bacon.fromPromise(new Promise(function(resolve, reject) {
+		var bundleStream = b.bundle();
+		bundleStream.on("end", () => {
+			resolve(events);
+		});
+	}));
+
+	if (!op.watch) {
+		return stream;
+	}
+	var updates = Bacon.fromEvent(b, "sigh.events", (events) => [new Bacon.Next(events), new Bacon.End()]);
+	return Bacon.mergeAll(stream, updates);
+		
 }
