@@ -3,57 +3,39 @@ import Promise from "bluebird";
 import {log, Bacon, Event} from "sigh-core";
 import Browserify from "browserify";
 import convert from "convert-source-map";
-import get from "lodash.get";
+import {mapEvents} from "sigh-core/lib/stream";
 
-export default function(op, b, options = {}) {
-	
-	b = get(options, "browserify", b);
+export default function(op, b, options) {
+
+	b = _.get(options, "browserify", b);
 	if (b instanceof Browserify === false) throw new Error("Expected browserify object.");
 
-	var events = [];
+	var filePath;
+	return op.stream.flatMap(function(events) {
+		var file = _.first(events);
+		filePath = _.get(file, "path", "app.js");
+		var files = _.pluck(events, "path");
+	}).flatMapLatest(function() {
+		return Bacon.fromPromise(new Promise(function(resolve, reject) {
+			b.bundle(function(err, buffer) {
+				if (err) {
+					return reject(err);
+				}
+				var type = "add";
+				var contents = buffer.toString();
+				var sourceMap = convert.fromSource(contents);
+				if (sourceMap) {
+					sourceMap = sourceMap.toObject();
+				}
+				var data = convert.removeComments(contents);
+				var event = new Event({
+					type, data, sourceMap,
+					path: filePath,
+					createTime: new Date()
+				});
+				resolve([event]);
+			});
+		}));
+	});
 
-	var transformEvent = (e) => {
-		var {path, contents} = e;
-		var type = "add";
-		var initPhase = true;
-		// TODO: Log.
-		// log(`${type} ${path}`);
-		var sourceMap = convert
-			.fromSource(contents)
-			.toObject();
-		var data = convert.removeComments(contents);
-		var event = new Event({
-			type, initPhase, path, data, sourceMap,
-			createTime: new Date()
-		});
-		events.push(event);
-	};
-
-	b.on("sigh.event", transformEvent);
-
-	if (op.watch) {
-		var watchify = require("watchify");
-		b.plugin(watchify);
-		b.on("reset", () => events = []);
-		b.on("update", () => b.bundle());
-		b.on("log", log);
-		b.on("sigh.event", () => {
-			// TODO: get rid of repeated.
-			b.emit("sigh.events", events);
-		});
-	}
-
-	var stream = Bacon.fromPromise(new Promise(function(resolve, reject) {
-		var bundleStream = b.bundle();
-		bundleStream.on("end", () => {
-			resolve(events);
-		});
-	}));
-
-	if (!op.watch) {
-		return stream;
-	}
-	var updates = Bacon.fromEvent(b, "sigh.events", (events) => [new Bacon.Next(events), new Bacon.End()]);
-	return Bacon.mergeAll(stream, updates);
-		
 }
