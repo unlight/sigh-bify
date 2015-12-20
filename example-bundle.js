@@ -22,13 +22,6 @@ b.plugin("factor-bundle", {
 	outputs: [appStream]
 });
 
-// if (true) {
-// 	var watchify = require("watchify");
-// 	bundler.plugin(watchify);
-// }
-
-b.on("update", b.bundle.bind(b));
-
 b.on("bundle", function (bundleStream) {
 	var vendorStream = new MemoryStream();
 	bundleStream.pipe(vendorStream);
