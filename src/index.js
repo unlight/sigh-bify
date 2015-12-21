@@ -4,6 +4,7 @@ import {log, Bacon, Event} from "sigh-core";
 import Browserify from "browserify";
 import convert from "convert-source-map";
 import {mapEvents} from "sigh-core/lib/stream";
+import {join as pjoin} from "path";
 
 export default function(op, b, options) {
 
@@ -11,13 +12,35 @@ export default function(op, b, options) {
 	if (b instanceof Browserify === false) throw new Error("Expected browserify object.");
 
 	var filePath;
-	return op.stream.flatMap(function(events) {
+	var stream = op.stream.flatMap(addFiles)
+		.flatMapLatest(updateBundle);
+
+	return stream;
+
+	function addFiles(events) {
 		var file = _.first(events);
 		filePath = _.get(file, "path", "app.js");
-		var files = _.pluck(events, "path");
-	}).flatMapLatest(function() {
+		if (file) {
+			var basePath = file.basePath;
+			if (filePath.indexOf(basePath) === 0) {
+				filePath = filePath.slice(basePath.length + 1);
+			}
+		}
+		var files = _.map(events, event => {
+			var result = event.path;
+			if (event.basePath) {
+				result = pjoin(event.basePath, result);
+			}
+			return result;
+		});
+		b.add(files);
+	}
+
+	function updateBundle() {
 		return Bacon.fromPromise(new Promise(function(resolve, reject) {
-			b.bundle(function(err, buffer) {
+			b.bundle(bundleHandler);
+
+			function bundleHandler(err, buffer) {
 				if (err) {
 					return reject(err);
 				}
@@ -34,8 +57,7 @@ export default function(op, b, options) {
 					createTime: new Date()
 				});
 				resolve([event]);
-			});
+			}
 		}));
-	});
-
+	}
 }
