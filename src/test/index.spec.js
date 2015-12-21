@@ -14,33 +14,41 @@ require("source-map-support").install();
 describe("sigh-bify", () => {
 	
 	var createBrowserify = () => {
-		var exampleBrowserifyFile = require.resolve("../../example-bundle2.js");
+		var exampleBrowserifyFile = require.resolve("../../example-bundle3.js");
 		delete require.cache[exampleBrowserifyFile];
 		return require(exampleBrowserifyFile);
 	};
-	var stream = Bacon.constant([]);
+	var emptyStream = Bacon.constant([]);
+	var event = new Event({
+		basePath: "root",
+		path: "./example-app.js",
+		type: "add",
+		data: "require('os')"
+	});
+	var stream = Bacon.constant([event]);
 	
 	it("exists", () => {
 		expect(plugin).to.be.ok;
 	});
 
 	it("should throw error (expected browserify)", () => {
-		var fn = plugin.bind(plugin, {stream});
+		var fn = plugin.bind(plugin, {stream: emptyStream});
 		expect(fn).to.throw(Error);
 	});
 
 	it("should be created without error", () => {
 		var browserify = require("browserify")();
-		plugin({stream}, browserify);
+		plugin({stream: emptyStream}, browserify);
 	});
 
 	it("should emit something", (done) => {
 		var ps = plugin({stream}, createBrowserify());
+		// ps.onValue(v => console.log(v));
 		ps.onEnd(done);
 	});
 
 	it("should watch correct", (done) => {
-		var ps = plugin({stream, watch: true}, createBrowserify());
+		var ps = plugin({stream: emptyStream, watch: true}, createBrowserify());
 		ps.onEnd(done);
 	});
 

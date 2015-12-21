@@ -1,5 +1,15 @@
 # sigh-bify
 sigh-plugin for browserify.
 
+```js
+module.exports = function(pipelines) {
 
-https://www.npmjs.com/package/factor-bundle-reset-patch
+	var b = browserify();
+
+	pipelines["build"] = [
+		glob({basePath: "src"}, "app.js"),
+		bify(b),
+		write("dist")
+	];
+};
+```
