@@ -5,10 +5,10 @@ sigh-plugin for browserify.
 USAGE
 -----
 ```js
+var merge, glob, concat, write, env, pipeline;
+var bify;
 module.exports = function(pipelines) {
-
 	var b = browserify();
-
 	pipelines["build"] = [
 		glob({basePath: "src"}, "app.js"),
 		bify(b),
@@ -35,4 +35,4 @@ Required: No
 
     * `path` (string)  
     Bundle file path. 
-    If not specified will be taken from first file matching to glob pattern.
+    If not specified will be taken from first file from glob stream.
