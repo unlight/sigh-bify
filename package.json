@@ -2,17 +2,15 @@
   "name": "sigh-bify",
   "version": "0.0.1-a",
   "description": "sigh-plugin for browserify.",
-  "scripts": {},
   "main": "lib",
   "keywords": [
     "sigh-plugin"
   ],
   "license": "Beerware",
   "dependencies": {
-    "lodash.get": "^3.7.0",
+    "lodash": "*",
     "bluebird": "^2.9.24",
     "convert-source-map": "^1.1.2",
-    "memory-stream": "0.0.3",
     "sigh-core": "^0.11.4"
   },
   "peerDependencies": {
