@@ -1,6 +1,9 @@
-# sigh-bify
+sigh-bify
+=========
 sigh-plugin for browserify.
 
+USAGE
+-----
 ```js
 module.exports = function(pipelines) {
 
@@ -13,3 +16,23 @@ module.exports = function(pipelines) {
 	];
 };
 ```
+
+API
+---
+```js
+bify(b, options)
+```
+
+* `b`  
+Browserify instance.  
+Type: Browserify  
+Required: Yes  
+
+* `options`  
+Options.  
+Type: Object  
+Required: No  
+
+    * `path` (string)  
+    Bundle file path. 
+    If not specified will be taken from first file matching to glob pattern.

@@ -1,27 +1,25 @@
-// import _ from 'lodash'
-// import ProcessPool from 'process-pool'
-// import { positionOf } from 'sigh-core/lib/sourceMap'
-// import { SourceMapConsumer } from 'source-map'
+import _ from "lodash";
 import Event from "sigh/lib/Event";
 import Promise from "bluebird";
 import {Bacon} from "sigh-core";
+// import ProcessPool from 'process-pool'
 import {expect} from "chai";
 import Browserify from "browserify";
-import plugin from "../../";
+import plugin from "../";
 
 require("source-map-support").install();
 
-describe("sigh-bify", () => {
+describe("sigh-bify", function () {
 	
 	var createBrowserify = () => {
-		var exampleBrowserifyFile = require.resolve("../../example-bundle3.js");
+		var exampleBrowserifyFile = require.resolve("../example/bundle3.js");
 		delete require.cache[exampleBrowserifyFile];
 		return require(exampleBrowserifyFile);
 	};
 	var emptyStream = Bacon.constant([]);
 	var event = new Event({
-		basePath: "root",
-		path: "./example-app.js",
+		basePath: "",
+		path: "app.js",
 		type: "add",
 		data: "require('os')"
 	});
@@ -41,15 +39,27 @@ describe("sigh-bify", () => {
 		plugin({stream: emptyStream}, browserify);
 	});
 
+	it("should be saved with name main", () => {
+		var s = plugin({stream}, createBrowserify(), {path: "main.js"});
+		s.onValue(function(events) {
+			var path = _.get(events, "0.path");
+			expect(path).to.eq("main.js");
+		});
+	});
+
 	it("should emit something", (done) => {
-		var ps = plugin({stream}, createBrowserify());
-		// ps.onValue(v => console.log(v));
-		ps.onEnd(done);
+		var s = plugin({stream}, createBrowserify());
+		s.onEnd(done);
 	});
 
 	it("should watch correct", (done) => {
-		var ps = plugin({stream: emptyStream, watch: true}, createBrowserify());
-		ps.onEnd(done);
+		var b = createBrowserify();
+		var s = plugin({stream: emptyStream, watch: true}, b);
+		s.onValue(function(events) {
+			var type = _.get(events, "0.type");
+			if (type === "change") done();
+		});
+		b.emit("update");
 	});
 
 });

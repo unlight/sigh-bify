@@ -1,5 +1,4 @@
 var browserify = require("browserify");
-var MemoryStream = require("memory-stream");
 
 var b = browserify({
 	debug: true,
@@ -8,5 +7,7 @@ var b = browserify({
 	packageCache: {},
 	cache: {}
 });
+
+// Add plugins here.
 
 module.exports = b;
