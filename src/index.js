@@ -1,42 +1,46 @@
-import _ from "lodash";
+import {get, first} from "lodash";
 import Promise from "bluebird";
 import {log, Bacon, Event} from "sigh-core";
 import Browserify from "browserify";
 import convert from "convert-source-map";
-import {mapEvents} from "sigh-core/lib/stream";
+// import {mapEvents} from "sigh-core/lib/stream";
 import {join as pjoin} from "path";
+import {EventEmitter} from "events";
 
-export default function(op, b, options) {
-
-	b = _.get(options, "browserify", b);
-	if (b instanceof Browserify === false) throw new Error("Expected browserify object.");
+export default function(op, b, options = {}) {
+	
+	if (!options.browserify) {
+		options.browserify = b;
+	}
+	b = get(options, "browserify");
+	if (!(b instanceof Browserify)) throw new Error("Expected browserify object.");
 
 	var stream;
-	var filePath = _.get(options, "path");
+	var filePath = get(options, "path");
 
 	stream = op.stream
-		.flatMap(addFiles)
-		.flatMapLatest(() => Bacon.fromPromise(bundle("add")));
+		.flatMapLatest(events => {
+			addFiles(events);
+			return Bacon.fromPromise(bundle("add"));
+		});
 
 	if (op.watch) {
+		var updater = new EventEmitter();
 		var watchify = require("watchify");
 		b.plugin(watchify);
-		var bus = new Bacon.Bus();
 		b.on("update", () => {
-			bundle("change").then(events => {
-				bus.push(events);
-			});
+			bundle("change").then(events => updater.emit("data", events));
 		});
 		b.on("log", log);
-		stream = Bacon.mergeAll(stream, bus);
+		stream = Bacon.mergeAll(stream, Bacon.fromEvent(updater, "data"));
 	}
 
 	return stream;
 
 	function addFiles(events) {
-		var file = _.first(events);
 		if (!filePath) {
-			filePath = _.get(file, "path", "app.js");
+			var file = first(events);
+			filePath = get(file, "path", "app.js");
 			if (file) {
 				var basePath = file.basePath;
 				if (filePath.indexOf(basePath) === 0) {
@@ -50,9 +54,8 @@ export default function(op, b, options) {
 	}
 
 	function bundle(type) {
-		return new Promise(function(resolve, reject) {
-			b.bundle(bundleHandler);
-			function bundleHandler(err, buffer) {
+		return new Promise((resolve, reject) => {
+			b.bundle(function bundleHandler(err, buffer) {
 				if (err) {
 					return reject(err);
 				}
@@ -69,7 +72,7 @@ export default function(op, b, options) {
 					createTime: new Date()
 				});
 				resolve([event]);
-			}
+			});
 		});
 	}
 }

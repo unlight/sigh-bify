@@ -5,7 +5,7 @@ module.exports = function(pipelines) {
 
 	pipelines.explicit["source"] = [
 		glob("app.js"),
-		bify(require("./bundle3.js")),
+		bify(require("./bundle.js")),
 		write("dist")
 	];
 };

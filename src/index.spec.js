@@ -12,7 +12,7 @@ require("source-map-support").install();
 describe("sigh-bify", function () {
 	
 	var createBrowserify = () => {
-		var exampleBrowserifyFile = require.resolve("../example/bundle3.js");
+		var exampleBrowserifyFile = require.resolve("../example/bundle.js");
 		delete require.cache[exampleBrowserifyFile];
 		return require(exampleBrowserifyFile);
 	};
@@ -21,7 +21,7 @@ describe("sigh-bify", function () {
 		basePath: "",
 		path: "app.js",
 		type: "add",
-		data: "require('os')"
+		data: "var x;"
 	});
 	var stream = Bacon.constant([event]);
 	

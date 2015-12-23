@@ -36,3 +36,7 @@ Required: No
     * `path` (string)  
     Bundle file path. 
     If not specified will be taken from first file from glob stream.
+
+TODO
+----
+* handle factor-bundle plugin
