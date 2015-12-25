@@ -1,6 +1,6 @@
 {
   "name": "sigh-bify",
-  "version": "0.0.1-c",
+  "version": "0.0.2",
   "description": "sigh-plugin for browserify.",
   "main": "lib",
   "keywords": [

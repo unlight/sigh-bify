@@ -2,11 +2,22 @@ sigh-bify
 =========
 sigh-plugin for browserify.
 
+INSTALL
+-------
+```js
+npm i sigh-bify --save-dev
+```
+Also, you need install `browserify` and `watchify` if you are planning to use sigh in watch mode:
+```js
+npm i sigh-bify browserify watchify --save-dev
+```
+
 USAGE
 -----
 ```js
 var merge, glob, concat, write, env, pipeline;
 var bify;
+
 module.exports = function(pipelines) {
 	var b = browserify();
 	pipelines["build"] = [
