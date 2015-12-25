@@ -7,7 +7,7 @@ INSTALL
 ```js
 npm i sigh-bify --save-dev
 ```
-Also, you need install `browserify` and `watchify` if you are planning to use sigh in watch mode:
+Also, you need install `browserify` and `watchify` if you are going to use sigh in watch mode:
 ```js
 npm i sigh-bify browserify watchify --save-dev
 ```
