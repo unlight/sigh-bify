@@ -4,7 +4,6 @@ import {log, Bacon, Event} from "sigh-core";
 import Browserify from "browserify";
 import convert from "convert-source-map";
 // import {mapEvents} from "sigh-core/lib/stream";
-import {join as pjoin} from "path";
 import {EventEmitter} from "events";
 
 export default function(op, b, options = {}) {
