@@ -62,5 +62,11 @@ describe("sigh-bify", function () {
 		b.emit("update");
 	});
 
+	it.skip("should initialized once", function() {
+		// how to test it?
+		var b = createBrowserify();
+		var s = plugin({stream: emptyStream, watch: true}, b);
+	});
+
 });
 

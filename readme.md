@@ -42,12 +42,14 @@ Required: Yes
 * `options`  
 Options.  
 Type: Object  
-Required: No  
+Optional: Yes  
 
-    * `path` (string)  
+    * `path`  
+    Type: String  
     Bundle file path. 
     If not specified will be taken from first file from glob stream.
 
 TODO
 ----
+* handle adding removing
 * handle factor-bundle plugin

@@ -1,4 +1,4 @@
-import {get, first} from "lodash";
+import {get, first, once} from "lodash";
 import Promise from "bluebird";
 import {log, Bacon, Event} from "sigh-core";
 import Browserify from "browserify";
@@ -16,10 +16,11 @@ export default function(op, b, options = {}) {
 
 	var stream;
 	var filePath = get(options, "path");
+	var addFilesOnce = once(addFiles);
 
 	stream = op.stream
 		.flatMapLatest(events => {
-			addFiles(events);
+			addFilesOnce(events);
 			return Bacon.fromPromise(bundle("add"));
 		});
 
@@ -31,7 +32,7 @@ export default function(op, b, options = {}) {
 			bundle("change").then(events => updater.emit("data", events));
 		});
 		b.on("log", log);
-		stream = Bacon.mergeAll(stream, Bacon.fromEvent(updater, "data"));
+		stream = stream.take(1).concat(Bacon.fromEvent(updater, "data"));
 	}
 
 	return stream;
