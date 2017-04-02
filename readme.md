@@ -1,5 +1,7 @@
 sigh-bify
 =========
+
+[![Greenkeeper badge](https://badges.greenkeeper.io/unlight/sigh-bify.svg)](https://greenkeeper.io/)
 sigh-plugin for browserify.
 
 INSTALL
