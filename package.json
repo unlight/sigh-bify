@@ -17,11 +17,11 @@
     "browserify": "*"
   },
   "devDependencies": {
-    "babel": "5",
+    "babel": "^6.23.0",
     "chai": "^3.4.1",
-    "mocha": "^2.2.4",
+    "mocha": "^3.2.0",
     "sigh": "^0.12.7",
-    "sigh-babel": "^0.11.0",
+    "sigh-babel": "^0.12.3",
     "sigh-mocha": "^0.1.0",
     "source-map": "^0.5.3",
     "source-map-support": "^0.4.0"
